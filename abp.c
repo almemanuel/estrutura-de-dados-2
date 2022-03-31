@@ -23,15 +23,15 @@ int isLeaf(TNoABP *node) {
     return 0; // the node is not a leaf node
 }
 
-TNoABP *insertNode(TNoABP *node, int new_value) {
-    if(node == NULL){
-        node = (TNoABP *) malloc(sizeof(TNoABP));
-        node->chave = new_value;
-        node->esq = node->dir = NULL;
+TNoABP *insertNode(TNoABP **node, int new_value) {
+    if(*node == NULL){
+        *node = (TNoABP *) malloc(sizeof(TNoABP));
+        (*node)->chave = new_value;
+        (*node)->esq = (*node)->dir = NULL;
     }
-    else if(node->chave > new_value) node->esq = insertNode(node->esq, new_value);
-    else if(node->chave < new_value) node->dir = insertNode(node->dir, new_value);
-    return node;
+    else if((*node)->chave > new_value) (*node)->esq = insertNode(&(*node)->esq, new_value);
+    else if((*node)->chave < new_value) (*node)->dir = insertNode(&(*node)->dir, new_value);
+    return *node;
 }
 
 void printABP(TNoABP *raiz) {
@@ -53,7 +53,7 @@ int main() {
     int v[n], i;
     for(i = 0; i < n; i++){
         scanf("%i", &v[i]);
-        raiz = insertNode(raiz, v[i]);
+        raiz = insertNode(&raiz, v[i]);
     }
 
     printABP(raiz);
