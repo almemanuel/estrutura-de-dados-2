@@ -1,11 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 struct TNoABP {
     int chave;
     struct TNoABP *esq, *dir;
 };
+
 typedef struct TNoABP TNoABP;
+
 
 TNoABP *alocaNo(int k) {
     TNoABP *no;
@@ -17,46 +20,71 @@ TNoABP *alocaNo(int k) {
     return no;
 }
 
-int isLeaf(TNoABP *node) {
-    if(node == NULL) return -1; // empty tree
-    else if(node->esq == NULL && node->dir == NULL) return 1; // the node is a leaf node
-    return 0; // the node is not a leaf node
-}
 
-TNoABP *insertNode(TNoABP **node, int new_value) {
-    if(*node == NULL){
-        *node = (TNoABP *) malloc(sizeof(TNoABP));
-        (*node)->chave = new_value;
-        (*node)->esq = (*node)->dir = NULL;
+TNoABP *insereNoABP(TNoABP **raiz, int k){
+    if(*raiz == NULL){
+        *raiz = (TNoABP *) malloc(sizeof(TNoABP));
+        (*raiz)->chave = k;
+        (*raiz)->esq = (*raiz)->dir = NULL;
     }
-    else if((*node)->chave > new_value) (*node)->esq = insertNode(&(*node)->esq, new_value);
-    else if((*node)->chave < new_value) (*node)->dir = insertNode(&(*node)->dir, new_value);
-    return *node;
-}
-
-void printABP(TNoABP *raiz) {
-    if (raiz == NULL) return;
-    printABP(raiz->esq);
-    printf("%d\n", raiz->chave);
-    printABP(raiz->dir);
+    else if((*raiz)->chave > k) (*raiz)->esq = insereNoABP(&(*raiz)->esq, k);
+    else if((*raiz)->chave < k) (*raiz)->dir = insereNoABP(&(*raiz)->dir, k);
+    return *raiz;
 }
 
 
-int main() {
-    unsigned int n;
-    do
-        scanf("%i", &n);
-    while(n == 0);
+int buscaNoABP(TNoABP *raiz, int k){
+    if(raiz == NULL) return 0;
+    else if(raiz->chave == k) return 1;
+    else if(raiz->chave > k) return buscaNoABP(raiz->esq, k);
+    else if(raiz->chave < k) return buscaNoABP(raiz->dir, k);
+}
 
-    TNoABP *raiz = NULL;
 
-    int v[n], i;
-    for(i = 0; i < n; i++){
-        scanf("%i", &v[i]);
-        raiz = insertNode(&raiz, v[i]);
+TNoABP **buscaPP(TNoABP **raiz, int k){
+    if(raiz == NULL) return NULL;
+    else if((*raiz)->chave == k) return &*raiz;
+    else if((*raiz)->chave < k) return buscaPP(&(*raiz)->dir, k);
+    else if((*raiz)->chave > k) return buscaPP(&(*raiz)->esq, k);
+    return NULL;
+}
+
+
+TNoABP **ppMenor(TNoABP **raiz){
+    if((*raiz)->dir == NULL) return &*raiz;
+    return ppMenor(&(*raiz)->dir);
+}
+
+
+void removeNoABP(TNoABP **raiz, int k){
+    TNoABP **pp = buscaPP(raiz, k);
+    if((*pp)->dir == NULL && (*pp)->esq == NULL){
+        free(*pp);
+        *pp = NULL;
+        return;
     }
 
-    printABP(raiz);
+    else if(((*pp)->dir == NULL) != ((*pp)->esq == NULL)){
+        TNoABP *filho = NULL;
+        filho = (*pp)->esq == NULL ? (*pp)->dir : (*pp)->esq;
+        free(*pp);
+        *pp = filho;
+        return;
+    }
 
-    return 0;
+    if((*pp)->esq && (*pp)->dir){
+        TNoABP **pps = ppMenor(&((*raiz)->dir));
+        (*pp)->chave = (*pps)->chave;
+        free(*pps);
+        (*pps) = NULL;
+    }
+}
+
+
+void emOrdem(TNoABP *raiz) {
+    if(raiz != NULL) {
+        emOrdem(raiz->esq);
+        printf("%d\n", raiz->chave);
+        emOrdem(raiz->dir);
+    }
 }
