@@ -22,13 +22,10 @@ TNoABP *alocaNo(int k) {
 
 
 TNoABP *insereNoABP(TNoABP **raiz, int k){
-    if(*raiz == NULL){
-        *raiz = (TNoABP *) malloc(sizeof(TNoABP));
-        (*raiz)->chave = k;
-        (*raiz)->esq = (*raiz)->dir = NULL;
-    }
+    if(*raiz == NULL) *raiz = alocaNo(k);
     else if((*raiz)->chave > k) (*raiz)->esq = insereNoABP(&(*raiz)->esq, k);
     else if((*raiz)->chave < k) (*raiz)->dir = insereNoABP(&(*raiz)->dir, k);
+
     return *raiz;
 }
 
@@ -42,37 +39,37 @@ int buscaNoABP(TNoABP *raiz, int k){
 
 
 TNoABP **buscaPP(TNoABP **raiz, int k){
-    if(raiz == NULL) return NULL;
+    if(*raiz == NULL) return NULL;
     else if((*raiz)->chave == k) return &*raiz;
     else if((*raiz)->chave < k) return buscaPP(&(*raiz)->dir, k);
     else if((*raiz)->chave > k) return buscaPP(&(*raiz)->esq, k);
+
     return NULL;
 }
 
 
 TNoABP **ppMenor(TNoABP **raiz){
     if((*raiz)->dir == NULL) return &*raiz;
+
     return ppMenor(&(*raiz)->dir);
 }
 
 
 void removeNoABP(TNoABP **raiz, int k){
     TNoABP **pp = buscaPP(raiz, k);
-    if((*pp)->dir == NULL && (*pp)->esq == NULL){
+
+    if(pp == NULL) return;
+    else if((*pp)->dir == NULL && (*pp)->esq == NULL){
         free(*pp);
         *pp = NULL;
         return;
-    }
-
-    else if(((*pp)->dir == NULL) != ((*pp)->esq == NULL)){
+    } else if(((*pp)->dir == NULL) != ((*pp)->esq == NULL)){
         TNoABP *filho = NULL;
         filho = (*pp)->esq == NULL ? (*pp)->dir : (*pp)->esq;
         free(*pp);
         *pp = filho;
         return;
-    }
-
-    if((*pp)->esq && (*pp)->dir){
+    } else if((*pp)->esq && (*pp)->dir){
         TNoABP **pps = ppMenor(&((*raiz)->dir));
         (*pp)->chave = (*pps)->chave;
         free(*pps);
