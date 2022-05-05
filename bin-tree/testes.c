@@ -1,3 +1,11 @@
+/* RM 11:36 */
+
+/************************************************************/
+/*  Disciplina: Estrutura de Dados 2                        */
+/*  Professor: Dr. Saulo Jorge Beltrão Queiroz              */
+/*  Aluno: Emanuel de Almeida Souza                         */
+/************************************************************/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include "abp.c"
@@ -36,3 +44,5 @@ int main() {
     }
     return 0;
 }
+
+/* RM 11:36 */

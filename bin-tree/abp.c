@@ -1,3 +1,11 @@
+/* RM 11:36 */
+
+/************************************************************/
+/*  Disciplina: Estrutura de Dados 2                        */
+/*  Professor: Dr. Saulo Jorge Beltrão Queiroz              */
+/*  Aluno: Emanuel de Almeida Souza                         */
+/************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -85,3 +93,5 @@ void emOrdem(TNoABP *raiz) {
         emOrdem(raiz->dir);
     }
 }
+
+/* RM 11:36 */
