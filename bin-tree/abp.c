@@ -94,4 +94,15 @@ void emOrdem(TNoABP *raiz) {
     }
 }
 
+
+
+void preOrdem(TNoABP *raiz) {
+    if(raiz != NULL) {
+        printf("%d\n", raiz->chave);
+        preOrdem(raiz->esq);
+        preOrdem(raiz->dir);
+    }
+}
+
+
 /* RM 11:36 */
