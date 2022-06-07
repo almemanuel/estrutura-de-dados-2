@@ -2,19 +2,30 @@
 #include <stdlib.h>
 
 void inicialized_array(int *array, int size) {
-    for (int i = 0; i < size; i++) {
-        array[i] = -1;
+    if(size - 1 < 0) {
+        return;
+    } else {
+        array[size - 1] = -1;
+        inicialized_array(array, size - 1);
     }
+}
+
+
+void print_hash(int *array, int size) {
+    for(int i = 0; i < size; i++) {
+        printf("%d", *(array + i));
+    }
+    printf("\n");
 }
 
 
 void direct_addressing(int *array, int size, int key) {
     int index = key % size;
     for(int i = 0; i < size; i++) {
-        if(array[index] == -1) {
-            array[index] = key;
+        if(*(array + index) == -1) {
+            *(array + index) = key;
             break;
-        } else if(array[index] == key) {
+        } else if(*(array + index) == key) {
             printf("%d is in the array\n", key);
             return;
         } else {
@@ -24,17 +35,17 @@ void direct_addressing(int *array, int size, int key) {
 }
 
 
-void search_hash(int *array, int size, int key) {
+int search_hash(int *array, int size, int key) {
     int index = key % size;
+
     for(int i = 0; i < size; i++) {
-        if(array[index] == key) {
-            printf("%d is in the array\n", key);
-            return;
+        if(*(array + index) == key) {
+            return index;
         } else {
-        index = (index + i) % size;
+            index = (index + i) % size;
         }
     }
-    printf("%d is not in the array\n", key);
+    return -1;
 }
 
 int main() {
@@ -44,6 +55,7 @@ int main() {
 
     int *arr = (int *)malloc(n * sizeof(int));
     inicialized_array(arr, n);
+    print_hash(arr, n);
 
     int element;
     printf("Enter the elements of the array: ");
@@ -51,6 +63,7 @@ int main() {
         scanf("%d", &element);
         direct_addressing(arr, n, element);
     }
+    print_hash(arr, n);
 
     int key;
     printf("Enter the key to be searched: ");
