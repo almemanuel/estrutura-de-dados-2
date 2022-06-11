@@ -9,50 +9,55 @@ typedef struct Node {
 typedef struct Node *List;
 
 void inicialized_array(int *array, int size) {
-    if(size - 1 < 0) {
+    if(size == 0) {
         return;
     } else {
-        array[size - 1] = -1;
-        inicialized_array(array, size - 1);
+        *array = -1;
+        inicialized_array(array + 1, size - 1);
     }
 }
 
 
 void print_hash(int *array, int size) {
-    for(int i = 0; i < size; i++) {
-        printf("%d", *(array + i));
+    if(size == 0) {
+        return;
+    } else {
+        printf("%d ", *array);
+        print_hash(array + 1, size - 1);
     }
-    printf("\n");
 }
 
 
 void direct_addressing(int *array, int size, int key) {
+    if(size == 0) {
+        printf("Fuller array\n");
+        return;
+    }
+
     int index = key % size;
-    for(int i = 0; i < size; i++) {
-        if(*(array + index) == -1) {
-            *(array + index) = key;
-            break;
-        } else if(*(array + index) == key) {
-            printf("%d is in the array\n", key);
-            return;
-        } else {
-            index = (index + i) % size;
-        }
+    if(*(array + index) == -1) {
+        *(array + index) = key;
+    } else if(*(array + index) == key) {
+        return;
+    } else {
+        return direct_addressing(array, size - 1, key);
     }
 }
 
 
 int search_hash(int *array, int size, int key) {
-    int index = key % size;
-
-    for(int i = 0; i < size; i++) {
-        if(*(array + index) == key) {
-            return index;
-        } else {
-            index = (index + i) % size;
-        }
+    if(size == 0) {
+        return 0;
     }
-    return -1;
+
+    int index = key % size;
+    if(*(array + index) == key) {
+        return key % size;
+    } else if(*(array + index) == -1) {
+        return -1;
+    } else {
+        return search_hash(array + 1, size - 1, key);
+    }
 }
 
 int main() {
@@ -75,5 +80,5 @@ int main() {
     int key;
     printf("Enter the key to be searched: ");
     scanf("%d", &key);
-    search_hash(arr, n, key);
+    printf(" %i ", search_hash(arr, n, key));
 }
