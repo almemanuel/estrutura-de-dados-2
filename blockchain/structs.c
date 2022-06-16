@@ -8,6 +8,9 @@
 
 #include<stdio.h>
 #include<stdlib.h>
+#include "openssl/crypto.h" // SHA256_DIGEST_LENGTH
+#include "openssl/sha.h"    // função SHA256
+#include <string.h>
 
 struct BlocoNaoMinerado {
     unsigned int numero;//4
