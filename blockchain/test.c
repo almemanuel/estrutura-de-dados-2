@@ -4,38 +4,42 @@
 #include "structs.c"
 
 int main() {
-    MTRand r = seedRand(1234567);
     BlocoNaoMinerado bloco_nao_minerado;
 
     bloco_nao_minerado.numero = 1;
     bloco_nao_minerado.nonce = 4;
 
-    float rand = genRand(&r);
-    unsigned char text[16];
-    sprintf(text, "%f", rand);
-    printf("%s\n", text);
-    unsigned char data[184];
+    /***************************************************************/
+    // transformar este trecho para ser uma função que preencha o campo data com 184 caracteres
 
-    int real_size_of_data = 0;
-    for(int i = 0; text[i] != '\0'; i++) {
-        real_size_of_data++;
-    }
+    // transforma um float pseudoaleatório em uma string de caracteres
+    // float rand = genRand(&r);
+    MTRand r = seedRand(1234567);
+    unsigned char rand[16];
+    sprintf(rand, "%f", genRand(&r));
 
-    for(int i = 0 - real_size_of_data; i < 184; i++) {
-        if(184 - i < real_size_of_data) {
-            data[i] = text[i - real_size_of_data];
-        } else {
-            data[i] = (char)0;
-        }
-    }
+    // descobre o tamanho real da string do valor acima
+    int rand_size = strlen(rand);
 
-    for(int i = 0; data[i] < '\0'; i++) {
-      printf("%c", data[i]);
+    // preenche o campo data com vários zeros e a string acima
+    // se preencher uma string com o caractere 0, será entendido /0. é necessário converter 48 (correspondente a 0 na ASCII) para caractere
+    for(int i = 0; i < 184 - rand_size; i++) {
+        bloco_nao_minerado.data[i] = (unsigned char) 48;
     }
-    printf("%ld\n", sizeof(data));
-    // // char data[184] = {0};
-    // *(data + 184 - sizeof(rand)) = rand;
-    // printf("%s\n", data);
+    strcpy(bloco_nao_minerado.data + 184 - rand_size, rand);
+    /***************************************************************/
+
+    printf("%ld\n", sizeof(bloco_nao_minerado.data));
+    printf("%s\n", bloco_nao_minerado.data);
+
+    // testando escrita no arquivo
+    FILE *file = fopen("test.txt", "ab+");
+    fwrite(bloco_nao_minerado.data, sizeof(bloco_nao_minerado.data), 184, file);
+    fgets(bloco_nao_minerado.data, 184, file);
+    printf("%s\n", bloco_nao_minerado.data);
+
+    fclose(file);
+
     // // bloco_nao_minerado.data = (unsigned char)genRand(&r);
     // bloco_nao_minerado.hashAnterior = SHA256((unsigned char *)&zero, sizeof(bloco_nao_minerado), hash);
   return 0;
