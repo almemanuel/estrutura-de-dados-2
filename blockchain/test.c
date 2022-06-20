@@ -83,11 +83,11 @@ void search_nonce(BlocoNaoMinerado *block, unsigned char *hash) {
 void print_block(BlocoMinerado *block) {
     printf("\n############################################################################################\n");
     printf("Block #%i\n", block->bloco.numero);
-    printf("Block Hash:");
+    printf("Block Hash: ");
     print_hash(block->hash);
     printf("Nonce: %i\n", block->bloco.nonce);
     printf("Data: %s\n", block->bloco.data);
-    printf("Previous Hash:");
+    printf("Previous Hash: ");
     print_hash(block->bloco.hashAnterior);
     printf("###########################################################################################\n");
 }
