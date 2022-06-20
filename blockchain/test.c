@@ -41,44 +41,43 @@ void fill_data(unsigned char *data, MTRand *r) {
 
 void search_nonce(BlocoNaoMinerado *block, unsigned char *hash) {
     block->nonce = 0;
-    int nonce_limit = pow(2, 23) - 1;
+    int nonce_limit = pow(2, 31) - 1;
     unsigned char temp_hash[SHA256_DIGEST_LENGTH];
     do {
-        SHA256((unsigned char *) &block, sizeof(BlocoNaoMinerado), hash);
-        if((hash[0] == 0) && (hash[1] == 0)) {
-            printf("Case 1\n");
-            SHA256((unsigned char *) &block, sizeof(BlocoNaoMinerado), hash);
+        SHA256((unsigned char *) block, sizeof(BlocoNaoMinerado), temp_hash);
+        if(temp_hash[0] < 16) {
+            memcpy(hash, temp_hash, SHA256_DIGEST_LENGTH);
+            break;
+        }
+        block->nonce++;
+    } while(block->nonce < nonce_limit);
+
+    do {
+        SHA256((unsigned char *) block, sizeof(BlocoNaoMinerado), temp_hash);
+        if(temp_hash[0] == 0) {
+            memcpy(hash, temp_hash, SHA256_DIGEST_LENGTH);
+            break;
+        }
+        block->nonce++;
+    } while(block->nonce < nonce_limit);
+
+    do {
+        SHA256((unsigned char *) block, sizeof(BlocoNaoMinerado), temp_hash);
+        if(temp_hash[0] == 0 && temp_hash[1] < 16) {
+            memcpy(hash, temp_hash, SHA256_DIGEST_LENGTH);
+            break;
+        }
+        block->nonce++;
+    } while(block->nonce < nonce_limit);
+
+    do {
+        SHA256((unsigned char *) block, sizeof(BlocoNaoMinerado), temp_hash);
+        if(temp_hash[0] == 0 && temp_hash[1] == 0) {
+            memcpy(hash, temp_hash, SHA256_DIGEST_LENGTH);
             return;
         }
         block->nonce++;
     } while(block->nonce < nonce_limit);
-    do {
-        SHA256((unsigned char *) &block, sizeof(BlocoNaoMinerado), hash);
-        if((hash[0] == 0) && (hash[1] < 16)) {
-            printf("Case 2\n");
-            SHA256((unsigned char *) &block, sizeof(BlocoNaoMinerado), hash);
-            return;
-        }
-        block->nonce--;
-    } while(block->nonce > 0);
-    do {
-        SHA256((unsigned char *) &block, sizeof(BlocoNaoMinerado), hash);
-        if(hash[0] == 0) {
-            printf("Case 3\n");
-            SHA256((unsigned char *) &block, sizeof(BlocoNaoMinerado), hash);
-            return;
-        }
-        block->nonce++;
-    } while(block->nonce < nonce_limit);
-    do {
-        SHA256((unsigned char *) &block, sizeof(BlocoNaoMinerado), hash);
-        if(hash[0] < 16) {
-            printf("Case 4\n");
-            SHA256((unsigned char *) &block, sizeof(BlocoNaoMinerado), hash);
-            return;
-        }
-        block->nonce--;
-    } while(block->nonce > 0);
 }
 
 void print_block(BlocoMinerado *block) {
@@ -112,7 +111,6 @@ int main() {
     for(int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
         *(bloco_nao_minerado[1].hashAnterior + i) = *(bloco_minerado[0].hash + i);
     }
-    printf("\n PESQUISANDO NONCE...\n");
     search_nonce(&bloco_nao_minerado[1], bloco_minerado[1].hash);
     bloco_minerado[1].bloco = bloco_nao_minerado[1];
     print_block(&bloco_minerado[1]);
