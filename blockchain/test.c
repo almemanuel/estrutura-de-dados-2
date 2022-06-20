@@ -43,13 +43,14 @@ void search_nonce(BlocoNaoMinerado *block, unsigned char *hash) {
     block->nonce = 0;
     int nonce_limit = pow(2, 31) - 1;
     unsigned char temp_hash[SHA256_DIGEST_LENGTH];
+    SHA256((unsigned char *) block, sizeof(BlocoNaoMinerado), temp_hash);
     do {
-        SHA256((unsigned char *) block, sizeof(BlocoNaoMinerado), temp_hash);
         if(temp_hash[0] < 16) {
             memcpy(hash, temp_hash, SHA256_DIGEST_LENGTH);
             break;
         }
         block->nonce++;
+        SHA256((unsigned char *) block, sizeof(BlocoNaoMinerado), temp_hash);
     } while(block->nonce < nonce_limit);
 
     do {
@@ -59,6 +60,7 @@ void search_nonce(BlocoNaoMinerado *block, unsigned char *hash) {
             break;
         }
         block->nonce++;
+        SHA256((unsigned char *) block, sizeof(BlocoNaoMinerado), temp_hash);
     } while(block->nonce < nonce_limit);
 
     do {
@@ -68,6 +70,7 @@ void search_nonce(BlocoNaoMinerado *block, unsigned char *hash) {
             break;
         }
         block->nonce++;
+        SHA256((unsigned char *) block, sizeof(BlocoNaoMinerado), temp_hash);
     } while(block->nonce < nonce_limit);
 
     do {
@@ -77,6 +80,7 @@ void search_nonce(BlocoNaoMinerado *block, unsigned char *hash) {
             return;
         }
         block->nonce++;
+        SHA256((unsigned char *) block, sizeof(BlocoNaoMinerado), temp_hash);
     } while(block->nonce < nonce_limit);
 }
 
@@ -95,40 +99,37 @@ void print_block(BlocoMinerado *block) {
 
 int main() {
     BlocoNaoMinerado bloco_nao_minerado[2];
-
-    int flag = 0;
-    int count = 1;
-
-    MTRand r = seedRand(1234567);
     BlocoMinerado bloco_minerado[2];
 
-    while((flag == 0 || flag == 1) && count < 1000) {
-        bloco_nao_minerado[flag].numero = count;
+    int count = 1;
+    MTRand r = seedRand(1234567);
+
+    int control = 0;
+    printf("You can stop the minering when count % 10 == 0, or break the program with ctrl + c\n");
+    while(control == 0) {
+        bloco_nao_minerado[count % 2].numero = count;
         if(count == 1) {
-            fill_data(bloco_nao_minerado[flag].data, &r);
-            fill_genesis(bloco_nao_minerado[flag].hashAnterior, 184);
-            search_nonce(&bloco_nao_minerado[flag], bloco_minerado[flag].hash);
-            bloco_minerado[flag].bloco = bloco_nao_minerado[flag];
-            print_block(&bloco_minerado[flag]);
-            flag++;
-        } else if(flag == 0) {
-            bloco_nao_minerado[flag].numero = count;
-            fill_data(bloco_nao_minerado[flag].data, &r);
+            fill_data(bloco_nao_minerado[count % 2].data, &r);
+            fill_genesis(bloco_nao_minerado[count % 2].hashAnterior, 184);
+            search_nonce(&bloco_nao_minerado[count % 2], bloco_minerado[count % 2].hash);
+            bloco_minerado[count % 2].bloco = bloco_nao_minerado[count % 2];
+            print_block(&bloco_minerado[count % 2]);
+        } else if(count % 2 == 0) {
+            bloco_nao_minerado[count % 2].numero = count;
+            fill_data(bloco_nao_minerado[count % 2].data, &r);
         // função get_back_hash
-            memcpy(bloco_nao_minerado[flag].hashAnterior, bloco_minerado[flag + 1].hash, SHA256_DIGEST_LENGTH);
-            search_nonce(&bloco_nao_minerado[flag], bloco_minerado[flag].hash);
-            bloco_minerado[flag].bloco = bloco_nao_minerado[flag];
-            print_block(&bloco_minerado[flag]);
-            flag++;
-        } else if(flag == 1) {
-            bloco_nao_minerado[flag].numero = count;
-            fill_data(bloco_nao_minerado[flag].data, &r);
+            memcpy(bloco_nao_minerado[count % 2].hashAnterior, bloco_minerado[count % 2 + 1].hash, SHA256_DIGEST_LENGTH);
+            search_nonce(&bloco_nao_minerado[count % 2], bloco_minerado[count % 2].hash);
+            bloco_minerado[count % 2].bloco = bloco_nao_minerado[count % 2];
+            print_block(&bloco_minerado[count % 2]);
+        } else if(count % 2 == 1) {
+            bloco_nao_minerado[count % 2].numero = count;
+            fill_data(bloco_nao_minerado[count % 2].data, &r);
         // função get_back_hash
-            memcpy(bloco_nao_minerado[flag].hashAnterior, bloco_minerado[flag - 1].hash, SHA256_DIGEST_LENGTH);
-            search_nonce(&bloco_nao_minerado[flag], bloco_minerado[flag].hash);
-            bloco_minerado[flag].bloco = bloco_nao_minerado[flag];
-            print_block(&bloco_minerado[flag]);
-            flag--;
+            memcpy(bloco_nao_minerado[count % 2].hashAnterior, bloco_minerado[count % 2 - 1].hash, SHA256_DIGEST_LENGTH);
+            search_nonce(&bloco_nao_minerado[count % 2], bloco_minerado[count % 2].hash);
+            bloco_minerado[count % 2].bloco = bloco_nao_minerado[count % 2];
+            print_block(&bloco_minerado[count % 2]);
             // testando escrita no arquivo
             FILE *file = fopen("blocks", "ab+");
             if(file == NULL) {
@@ -139,6 +140,10 @@ int main() {
             fclose(file);
         }
         count++;
+        if(count % 10 == 0) {
+            printf("Continue? (0 - yes, Other - no)\n");
+            scanf("%i", &control);
+        }
     }
 
 
