@@ -96,56 +96,51 @@ void print_block(BlocoMinerado *block) {
 int main() {
     BlocoNaoMinerado bloco_nao_minerado[2];
 
-    bloco_nao_minerado[0].numero = 1;
+    int flag = 0;
+    int count = 1;
+
     MTRand r = seedRand(1234567);
-    fill_data(bloco_nao_minerado[0].data, &r);
-    fill_genesis(bloco_nao_minerado[0].hashAnterior, 184);
     BlocoMinerado bloco_minerado[2];
-    search_nonce(&bloco_nao_minerado[0], bloco_minerado[0].hash);
-    bloco_minerado[0].bloco = bloco_nao_minerado[0];
-    print_block(&bloco_minerado[0]);
 
-    bloco_nao_minerado[1].numero = bloco_nao_minerado[0].numero + 1;
-    fill_data(bloco_nao_minerado[1].data, &r);
-    // função get_back_hash
-    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        *(bloco_nao_minerado[1].hashAnterior + i) = *(bloco_minerado[0].hash + i);
+    while((flag == 0 || flag == 1) && count < 1000) {
+        bloco_nao_minerado[flag].numero = count;
+        if(count == 1) {
+            fill_data(bloco_nao_minerado[flag].data, &r);
+            fill_genesis(bloco_nao_minerado[flag].hashAnterior, 184);
+            search_nonce(&bloco_nao_minerado[flag], bloco_minerado[flag].hash);
+            bloco_minerado[flag].bloco = bloco_nao_minerado[flag];
+            print_block(&bloco_minerado[flag]);
+            flag++;
+        } else if(flag == 0) {
+            bloco_nao_minerado[flag].numero = count;
+            fill_data(bloco_nao_minerado[flag].data, &r);
+        // função get_back_hash
+            memcpy(bloco_nao_minerado[flag].hashAnterior, bloco_minerado[flag + 1].hash, SHA256_DIGEST_LENGTH);
+            search_nonce(&bloco_nao_minerado[flag], bloco_minerado[flag].hash);
+            bloco_minerado[flag].bloco = bloco_nao_minerado[flag];
+            print_block(&bloco_minerado[flag]);
+            flag++;
+        } else if(flag == 1) {
+            bloco_nao_minerado[flag].numero = count;
+            fill_data(bloco_nao_minerado[flag].data, &r);
+        // função get_back_hash
+            memcpy(bloco_nao_minerado[flag].hashAnterior, bloco_minerado[flag - 1].hash, SHA256_DIGEST_LENGTH);
+            search_nonce(&bloco_nao_minerado[flag], bloco_minerado[flag].hash);
+            bloco_minerado[flag].bloco = bloco_nao_minerado[flag];
+            print_block(&bloco_minerado[flag]);
+            flag--;
+            // testando escrita no arquivo
+            FILE *file = fopen("blocks", "ab+");
+            if(file == NULL) {
+                printf("Erro ao abrir arquivo\n");
+                return 1;
+            }
+            fwrite(bloco_minerado, sizeof(bloco_minerado), sizeof(bloco_minerado), file);
+            fclose(file);
+        }
+        count++;
     }
-    search_nonce(&bloco_nao_minerado[1], bloco_minerado[1].hash);
-    bloco_minerado[1].bloco = bloco_nao_minerado[1];
-    print_block(&bloco_minerado[1]);
 
-//     // Função minera bloco
-//     BlocoMinerado bloco_minerado;
-//     bloco_minerado.bloco = bloco_nao_minerado;
-//     *(bloco_minerado.hash) = *hash;
-//     printf("Informações do bloco minerado:\n");
-//     printf("\tHash do bloco: ");
-//     /***************************************************************/
-//     /***************************************************************/
-//     printf("\tBloco #%d\n", bloco_minerado.bloco.numero);
-//     printf("\tNonce: %d\n", bloco_minerado.bloco.nonce);
-//     printf("\tData: %s\n", bloco_minerado.bloco.data);
-//     printf("\tHash Anterior: ");
-//     for(int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-//         printf("%02x", bloco_minerado.bloco.hashAnterior[i]);
-//     }
-//     printf("\n");
-//     /***************************************************************/
-// //     // BlocoMinerado bloco_minerado;
-// //     // bloco_minerado.bloco = bloco_nao_minerado;
-// //     // printf("%ld\n", sizeof(bloco_nao_minerado));
-// //     // SHA256((unsigned char *) &bloco_minerado.bloco, sizeof(bloco_minerado.bloco), bloco_minerado.hash);
-
-// //     // // testando escrita no arquivo
-// //     // FILE *file = fopen("test", "ab+");
-// //     // fwrite(&bloco_minerado, sizeof(bloco_minerado), sizeof(bloco_minerado), file);
-// //     // unsigned char bloco[256];
-// //     // fgets(bloco, sizeof(bloco_minerado), file);
-// //     // printf("%s\n", bloco);
-// //     // printf("%ld\n", sizeof(bloco));
-
-// //   //   fclose(file);
 
 // //   //   // // bloco_nao_minerado.data = (unsigned char)genRand(&r);
 // //   //   // bloco_nao_minerado.hashAnterior = SHA256((unsigned char *)&zero, sizeof(bloco_nao_minerado), hash);
